@@ -17,7 +17,7 @@ void checkNeighbours(int matrix[13][13], short n, int x, int y, int i){
             matrix[y + 1][x] = i + 1;
         }
     }
-    if(y - 1 > 0){
+    if(y - 1 > -1){
         if(matrix[y - 1][x] == 0){
             matrix[y - 1][x] = i + 1;
         }
@@ -27,7 +27,7 @@ void checkNeighbours(int matrix[13][13], short n, int x, int y, int i){
             matrix[y][x + 1] = i + 1;
         }
     }
-    if(x - 1 > 0){
+    if(x - 1 > -1){
         if(matrix[y][x - 1] == 0){
             matrix[y][x - 1] = i + 1;
         }
@@ -37,13 +37,11 @@ void checkNeighbours(int matrix[13][13], short n, int x, int y, int i){
 
 void checkfori(int matrix[13][13], short n, int i){
     int y, x;
-    int (*matrixPtr)[13];
-    printMaze(matrixPtr, n);
-    printf("i = %d\n", i);
+    
     for (y = 0; y < n; y++){
         for( x = 0; x < n; x++){
-            if(matrix[y][x] = i){
-                
+            if(matrix[y][x] == i){
+                int (*matrixPtr)[13];
                 matrixPtr = matrix;
                 checkNeighbours(matrixPtr, n, x, y, i);
             }
@@ -76,8 +74,8 @@ int main()
     int startX, startY, finishY, finishX;
     
     short dimensions = 13;
-    int startStation = 3;
-    int finishStation = 11;
+    int startStation = 12;
+    int finishStation = 6;
     int (*mazePtr)[13];
     int stations[12][2] = {
                 {12,4}, {12,6},{12,8},
@@ -95,17 +93,16 @@ int main()
     maze[finishY][finishX] = 1;
     int i = 1;
     
-    //while(maze[startY][startX] < 1){
-    int a;
-    for(a = 0; a < 4; a++){
+    while(maze[startY][startX] < 1){
+
 
     
         checkfori(mazePtr, dimensions, i);
-        
+        printMaze(mazePtr, dimensions);
+        printf("\n");
         i++;
         
     }    
-    //}
 
     
     return 0;
