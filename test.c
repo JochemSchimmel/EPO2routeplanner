@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-void printMatrix(int matrix[4][4]){
+void printMatrix(int matrix[4][4], short int n){
     int i, j;
-    for (i = 0; i < 13; i++){
-        for( j = 0; j < 13; j++){
+    for (i = 0; i < n; i++){
+        for( j = 0; j < n; j++){
 
-            printf(" %02d", i,j, matrix[i][j]);
+            printf(" %02d", matrix[i][j]);
         }
         printf("\n");
     }
@@ -14,11 +14,12 @@ void printMatrix(int matrix[4][4]){
 
 
 int main(){
-    int (*mazePtr)[4][4];
-    int maze[4][4] = {{1,2,3,4},{5,6,7,8},{9,8,7,6},{5,4,3,2}};
-    mazePtr = &maze[0][0]; //points to first element of matrix
+    short int arrDimension = 4;
+    int maze[4][4] = {{10, 11, 12, 13},{20, 21, 22, 23},{30, 31, 32, 33},{3,4,3,9}};
+    int (*mazePtr)[4];
+    mazePtr = maze; //points to first element of matrix
     //buildMatrix(mazePtr);
-    printMatrix(mazePtr);
+    printMatrix(mazePtr, arrDimension);
     //initialiseMatrix();
     return 0;
 }
