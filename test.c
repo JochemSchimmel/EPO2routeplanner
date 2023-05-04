@@ -9,6 +9,7 @@ void printMatrix(int matrix[4][4], short int n){
         }
         printf("\n");
     }
+    printf("%d", matrix[3][1]);
 
 }
 
