@@ -1,5 +1,16 @@
 #include <stdio.h>
 
+void printMaze(int matrix[13][13], short n){
+    int i, j;
+    for (i = 0; i < n; i++){
+        for( j = 0; j < n; j++){
+
+            printf(" %02d", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 int* getInput(int matrix[13][13]){
     int numberOfEdges;
     scanf("%d", &numberOfEdges);
@@ -29,16 +40,7 @@ int* getInput(int matrix[13][13]){
     return stationListPtr;
 }
 
-void printMaze(int matrix[13][13], short n){
-    int i, j;
-    for (i = 0; i < n; i++){
-        for( j = 0; j < n; j++){
 
-            printf(" %02d", matrix[i][j]);
-        }
-        printf("\n");
-    }
-}
 
 void addValueToNeighbours(int matrix[13][13], short n, int x, int y, int i){
     if(y + 1 < n){
@@ -62,6 +64,7 @@ void addValueToNeighbours(int matrix[13][13], short n, int x, int y, int i){
         }
     }
 }
+
 
 void printCrossing(int y, int x){
     if((x % 2 == 0) && (y % 2 == 0)){
@@ -154,20 +157,22 @@ int main()
     
     short dimensions = 13;
     int (*mazePtr)[13];
+    mazePtr = maze;
     int (*stationPtr) = getInput(mazePtr);
     startStation = stationPtr[0];
     finishStation = stationPtr[1];
     printf("%d %d\n", startStation, finishStation);
-    mazePtr = maze;
+    
     //give startstation value i = 1
     startY = stations[startStation][0];
     startX = stations[startStation][1];
     finishY = stations[finishStation][0];
     finishX = stations[finishStation][1];
     
+
+
     maze[finishY][finishX] = 1;
     int i = 1;
-    
     while(maze[startY][startX] < 1){
         checkfori(mazePtr, dimensions, i);
         printMaze(mazePtr, dimensions);
