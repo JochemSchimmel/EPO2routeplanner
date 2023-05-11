@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void printMaze(int matrix[13][13], short n){
+void printMaze(short n, int matrix[n][n]){
     int i, j;
     for (i = 0; i < n; i++){
         for( j = 0; j < n; j++){
@@ -88,6 +88,18 @@ void checkfori(int matrix[13][13], short n, int i){
         
     }
     
+}
+
+//Changes all values in the matrix back to 0, but keeps the mines and nogo cells
+void resetMatrix(int matrix[11][11], int n){
+    int i, j;
+    for (i = 0; i < n; i++){
+        for( j = 0; j < n; j++){
+            if(matrix[i][j] != -1 && matrix[i][j] != 0){
+                matrix[i][j] = 0;
+            }
+        }
+    }
 }
 
 
