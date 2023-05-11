@@ -10,7 +10,7 @@ void printMaze(short n, int matrix[n][n]){
         printf("\n");
     }
 }
-
+/*
 int* getInput(int matrix[13][13]){
     int numberOfEdges;
     scanf("%d", &numberOfEdges);
@@ -39,10 +39,10 @@ int* getInput(int matrix[13][13]){
     int *stationListPtr = stationList;
     return stationListPtr;
 }
+*/
 
 
-
-void addValueToNeighbours(int matrix[13][13], short n, int x, int y, int i){
+void addValueToNeighbours( short n, int matrix[n][n], int x, int y, int i){
     if(y + 1 < n){
         if(matrix[y + 1][x] == 0){
             matrix[y + 1][x] = i + 1;
@@ -73,13 +73,13 @@ void printCrossing(int y, int x){
 }
 
 
-void checkfori(int matrix[13][13], short n, int i){
+void checkfori(short n, int matrix[n][n], int i){
     int y, x;
     
     for (y = 0; y < n; y++){
         for( x = 0; x < n; x++){
             if(matrix[y][x] == i){
-                int (*matrixPtr)[13];
+                int (*matrixPtr)[n];
                 matrixPtr = matrix;
                 addValueToNeighbours(matrixPtr, n, x, y, i);
             }
@@ -91,7 +91,7 @@ void checkfori(int matrix[13][13], short n, int i){
 }
 
 //Changes all values in the matrix back to 0, but keeps the mines and nogo cells
-void resetMatrix(int matrix[11][11], int n){
+void resetMatrix(int n, int matrix[n][n]){
     int i, j;
     for (i = 0; i < n; i++){
         for( j = 0; j < n; j++){
@@ -104,7 +104,7 @@ void resetMatrix(int matrix[11][11], int n){
 
 
 
-void traceBack(int y, int x, int matrix[13][13], int n){
+void traceBack(int n, int matrix[n][n], int y, int x){
     int currentCellValue = matrix[y][x];
     if( currentCellValue == 1) return;
     if(y + 1 < n){
@@ -141,8 +141,8 @@ void traceBack(int y, int x, int matrix[13][13], int n){
 
 int main()
 
-{//                                      9      8      7
-    int maze[9][9] = {{ 0,  0, 0,  0, 0,  0, 0,  0,  0},
+{//                              9      8      7
+    int maze[9][9] =    {{0,  0, 0,  0, 0,  0, 0,  0,  0},
                         { 0, -1, 0, -1, 0, -1, 0, -1,  0},
     /*              10*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*6*/
                         { 0, -1, 0, -1, 0, -1, 0, -1,  0},
@@ -151,7 +151,7 @@ int main()
     /*              12*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*4*/
                         { 0, -1, 0, -1, 0, -1, 0, -1,  0},
                         { 0,  0, 0,  0, 0,  0, 0,  0,  0}};
-    //                                   1      2      3
+    //                           1      2      3
     int stations[13][2] = { //First element empty to match index
                 {0,0},
                 {12,4}, {12,6},{12,8},
@@ -163,8 +163,8 @@ int main()
 
     int startX, startY, finishY, finishX, startStation, finishStation;
     
-    short dimensions = 13;
-    int (*mazePtr)[13];
+    short dimensions = 9;
+    int (*mazePtr)[dimensions];
     mazePtr = maze;
     int (*stationPtr) = getInput(mazePtr);
     startStation = stationPtr[0];
@@ -182,13 +182,13 @@ int main()
     maze[finishY][finishX] = 1;
     int i = 1;
     while(maze[startY][startX] < 1){
-        checkfori(mazePtr, dimensions, i);
-        printMaze(mazePtr, dimensions);
+        checkfori(dimensions, mazePtr, i);
+        printMaze(dimensions, mazePtr);
         printf("\n");
         i++;
         
     }    
-    traceBack(startY, startX, mazePtr, dimensions);
+    traceBack(dimensions, mazePtr, startY, startX);
     
     return 0;
 }
