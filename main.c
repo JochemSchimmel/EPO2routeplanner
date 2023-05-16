@@ -205,7 +205,7 @@ int main(){
 
      //First element empty to match index
     int stations[13][2] = {{0,0},
-                {12,4}, {12,6}, {12,8},{8,12}, {6,12}, {4,12}, {0,8},  {0,6},  {0,4}, {4,0},  {6,0},  {8,0}};
+                {8,2}, {8,4}, {8,6}, {6,8}, {4,8}, {2,8}, {0,6}, {0,4}, {0,2}, {2,0}, {4,0}, {6,0}};
 
     int destinationStations = {10,11,1};
     int *destinationStationsPtr = destinationStations;
