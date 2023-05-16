@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "headers.h"
-//takes dimensions and matrix as input, prints maze
+
+//takes dimensions and matrix as input, prints all values in the matrix
 void printMaze(short n, int matrix[n][n]){
     int i, j;
     for (i = 0; i < n; i++){
@@ -46,6 +47,12 @@ int* getInput(int matrix[13][13]){
 /*Function called by traceback function
 
 */
+
+/*
+ * Takes a cell with x and y coords as input. 
+ * I is passed to the function
+ If a neighbour has value 0, it gives this neighbour the value i + 1
+*/
 void addValueToNeighbours( short n, int matrix[n][n], int x, int y, int i){
     if(y + 1 < n){
         if(matrix[y + 1][x] == 0){
@@ -76,6 +83,7 @@ void printCrossing(int y, int x){
     } 
 }
 */
+
 
 void checkfori(short n, int matrix[n][n], int i){
     int y, x;
@@ -126,6 +134,11 @@ char determineRelativeDirection(int nextDirectionAngle, char currentDirection, c
     return turn;
 }
 
+/*
+    takes a filled in matrix as input. Starting at a point x,y, 
+    it visits the neighbour with value i -1, where the function is called recursively
+    stops when the x y coords are the destination
+*/
 void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], int currentDirection, int steps){
     int currentCellValue = matrix[y][x];
     char * directionListPtr = directionList;
@@ -165,9 +178,17 @@ void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], in
     }
 }
 
+struct coords findNearestStation(stationList){
+    struct coords target;
+    target.x = 5;
+    target.y = 3;
+    return target;
+}
 
-int main()
-{//                              9      8      7
+
+int main(){
+    short dimensions = 9;
+    //                           9      8      7
     int maze[9][9] =    {{0,  0, 0,  0, 0,  0, 0,  0,  0},
                         { 0, -1, 0, -1, 0, -1, 0, -1,  0},
     /*              10*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*6*/
@@ -178,38 +199,42 @@ int main()
                         { 0, -1, 0, -1, 0, -1, 0, -1,  0},
                         { 0,  0, 0,  0, 0,  0, 0,  0,  0}};
     //                           1      2      3
-    
+    struct coords target;
+    struct coords currentLocation;
+    short dimensions = 9;
+
      //First element empty to match index
     int stations[13][2] = {{0,0},
                 {12,4}, {12,6}, {12,8},{8,12}, {6,12}, {4,12}, {0,8},  {0,6},  {0,4}, {4,0},  {6,0},  {8,0}};
 
-    //station 0 does not exist, stations 1-3 face north, stations 4-6 face east, etc
-    char startStationDirection[13] = {'x', 'n','n','n','w','w','w','s','s','s','e','e','e'};
-
+    int destinationStations = {10,11,1};
+    int *destinationStationsPtr = destinationStations;
     int startX, startY, finishY, finishX, startStation, finishStation;
-    short dimensions = 9;
+    
     int (*mazePtr)[dimensions];
     mazePtr = maze;
-    //int (*stationPtr) = getInput(mazePtr);
-    //startStation = stationPtr[0];
-    //finishStation = stationPtr[1];
-    //printf("%d %d\n", startStation, finishStation);
+
+    //
     startStation = 1;
-    finishStation = 11;
+    char startDirection = 'n';
+    currentLocation.x = 8;
+    currentLocation.y = 2;
     //Decides the direction based on startstation, n, e, s or w
-    char startDirection = startStationDirection[startStation];
+    
     //give startstation value i = 1
+
     startY = stations[startStation][0];
     startX = stations[startStation][1];
     finishY = stations[finishStation][0];
     finishX = stations[finishStation][1];
     
-
     char directionList[99];
     char *directionPtr = directionList;
     char currentDirection = startDirection;
     maze[finishY][finishX] = 1;
     int i = 1;
+
+    target = findNearestStation(destinationStationsPtr);
     while(maze[startY][startX] < 1){
         checkfori(dimensions, mazePtr, i);
         printMaze(dimensions, mazePtr);
