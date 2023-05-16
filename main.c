@@ -178,64 +178,52 @@ void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], in
     }
 }
 
-struct coords findNearestStation(stationList){
-    struct coords target;
+struct Coords findNearestStation(stationList){
+    struct Coords target;
     target.x = 5;
     target.y = 3;
     return target;
 }
 
 
+
 int main(){
     short dimensions = 9;
-    //                           9      8      7
-    int maze[9][9] =    {{0,  0, 0,  0, 0,  0, 0,  0,  0},
-                        { 0, -1, 0, -1, 0, -1, 0, -1,  0},
-    /*              10*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*6*/
-                        { 0, -1, 0, -1, 0, -1, 0, -1,  0},
-    /*              11*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*5*/
-                        { 0, -1, 0, -1, 0, -1, 0, -1,  0},
-    /*              12*/{ 0,  0, 0,  0, 0,  0, 0,  0,  0},/*4*/
-                        { 0, -1, 0, -1, 0, -1, 0, -1,  0},
-                        { 0,  0, 0,  0, 0,  0, 0,  0,  0}};
-    //                           1      2      3
-    struct coords target;
-    struct coords currentLocation;
+
+    struct Coords target;
+    struct Coords currentLocation;
     short dimensions = 9;
 
      //First element empty to match index
+     //x, y coords per station
     int stations[13][2] = {{0,0},
-                {8,2}, {8,4}, {8,6}, {6,8}, {4,8}, {2,8}, {0,6}, {0,4}, {0,2}, {2,0}, {4,0}, {6,0}};
+{2,8}, {4,8}, {6,8}, {8,6}, {8,4}, {8,2}, {6,0}, {4,0}, {2,0}, {0,2}, {0,4}, {0,6}};
 
-    int destinationStations = {10,11,1};
+    //IMPORTANT THAT LAST ELEMENT IN DESTINATIONSTATIONS IS A 0
+    int destinationStations = {10,11,1,0};
     int *destinationStationsPtr = destinationStations;
     int startX, startY, finishY, finishX, startStation, finishStation;
-    
-    int (*mazePtr)[dimensions];
-    mazePtr = maze;
 
-    //
+    //initialises the startstation
     startStation = 1;
     char startDirection = 'n';
-    currentLocation.x = 8;
-    currentLocation.y = 2;
-    //Decides the direction based on startstation, n, e, s or w
-    
-    //give startstation value i = 1
+    currentLocation.x = stations[startStation][0];
+    currentLocation.x = stations[startStation][1];
 
-    startY = stations[startStation][0];
-    startX = stations[startStation][1];
-    finishY = stations[finishStation][0];
-    finishX = stations[finishStation][1];
+    
+    
     
     char directionList[99];
     char *directionPtr = directionList;
     char currentDirection = startDirection;
-    maze[finishY][finishX] = 1;
+
+    //give startstation value i = 1
+    matrix[currentLocation.y][currentLocation.x] = 1;
     int i = 1;
 
-    target = findNearestStation(destinationStationsPtr);
-    while(maze[startY][startX] < 1){
+
+    target = findNearestStation(destinationStationsPtr, );
+    while(matrix[currentLocation.y][currentLocation.x] < 1){
         checkfori(dimensions, mazePtr, i);
         printMaze(dimensions, mazePtr);
         printf("\n");
