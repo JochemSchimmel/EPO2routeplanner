@@ -2,10 +2,10 @@
 #include "headers.h"
 
 //takes dimensions and matrix as input, prints all values in the matrix
-void printMaze(short n, int matrix[n][n]){
+void printMaze(){
     int i, j;
-    for (i = 0; i < n; i++){
-        for( j = 0; j < n; j++){
+    for (i = 0; i < dimensions; i++){
+        for( j = 0; j < dimensions; j++){
 
             printf(" %02d", matrix[i][j]);
         }
@@ -53,8 +53,8 @@ int* getInput(int matrix[13][13]){
  * I is passed to the function
  If a neighbour has value 0, it gives this neighbour the value i + 1
 */
-void addValueToNeighbours( short n, int matrix[n][n], int x, int y, int i){
-    if(y + 1 < n){
+void addValueToNeighbours(int x, int y, int i){
+    if(y + 1 < dimensions){
         if(matrix[y + 1][x] == 0){
             matrix[y + 1][x] = i + 1;
         }
@@ -64,7 +64,7 @@ void addValueToNeighbours( short n, int matrix[n][n], int x, int y, int i){
             matrix[y - 1][x] = i + 1;
         }
     }
-    if(x + 1 < n){
+    if(x + 1 < dimensions){
         if(matrix[y][x + 1] == 0){
             matrix[y][x + 1] = i + 1;
         }
@@ -85,15 +85,15 @@ void printCrossing(int y, int x){
 */
 
 
-void checkfori(short n, int matrix[n][n], int i){
+
+
+void checkfori(int i){
     int y, x;
     
-    for (y = 0; y < n; y++){
-        for( x = 0; x < n; x++){
+    for (y = 0; y < dimensions; y++){
+        for( x = 0; x < dimensions; x++){
             if(matrix[y][x] == i){
-                int (*matrixPtr)[n];
-                matrixPtr = matrix;
-                addValueToNeighbours(matrixPtr, n, x, y, i);
+                addValueToNeighbours(x, y, i);
             }
             
         }
@@ -103,10 +103,10 @@ void checkfori(short n, int matrix[n][n], int i){
 }
 
 //Changes all values in the matrix back to 0, but keeps the mines and nogo cells
-void refreshMatrix(int n, int matrix[n][n]){
+void refreshMatrix(){
     int i, j;
-    for (i = 0; i < n; i++){
-        for( j = 0; j < n; j++){
+    for (i = 0; i < dimensions; i++){
+        for( j = 0; j < dimensions; j++){
             if(matrix[i][j] != -1){
                 matrix[i][j] = 0;
             }
@@ -139,24 +139,24 @@ char determineRelativeDirection(int nextDirectionAngle, char currentDirection, c
     it visits the neighbour with value i -1, where the function is called recursively
     stops when the x y coords are the destination
 */
-void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], int currentDirection, int steps){
+void traceBack(int y, int x, char directionList[99], int currentDirection, int steps){
     int currentCellValue = matrix[y][x];
     char * directionListPtr = directionList;
     int nextDirection;
     if( currentCellValue == 1) return;
-    if(y + 1 < n){
+    if(y + 1 < dimensions){
         if(matrix[y+1][x] == currentCellValue - 1){
                 nextDirection = determineRelativeDirection(180, currentDirection, directionListPtr);
                 currentDirection = nextDirection;
-                traceBack(y + 1,x,matrix,n);
+                traceBack(y + 1,x);
                 return;
         }
     }
-    if(x + 1 < n){
+    if(x + 1 < dimensions){
         if(matrix[y][x + 1] == currentCellValue - 1){
             nextDirection = determineRelativeDirection(90, currentDirection,directionListPtr);
             currentDirection = nextDirection;
-            traceBack(y,x + 1,matrix,n);
+            traceBack(y,x + 1);
             return;
         }
     }
@@ -164,7 +164,7 @@ void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], in
         if(matrix[y-1][x] == currentCellValue - 1){
                 nextDirection = determineRelativeDirection(0, currentDirection);
                 currentDirection = nextDirection;
-                traceBack(y - 1,x,matrix,n);
+                traceBack(y - 1,x);
                 return; 
         }
     }
@@ -172,35 +172,73 @@ void traceBack(int n, int matrix[n][n], int y, int x, char directionList[99], in
     if(x - 1 > -1){
         if(matrix[y][x - 1] == currentCellValue - 1){
             nextDirection = determineRelativeDirection(270, currentDirection);
-            traceBack(y,x - 1,matrix,n);
+            traceBack(y,x - 1);
             return;
         }
     }
 }
-
-struct Coords findNearestStation(stationList){
+/*
+struct Coords findNearestStation(struct Coords destinations[]){
     struct Coords target;
     target.x = 5;
     target.y = 3;
     return target;
 }
 
+struct Coords * stationToCoords(int stationNums, int stationCoords){
+    int stationNumLength = sizeof(stationNums)/sizeof(stationNums[0]); 
+    int i = 0;
+    struct Coords destinationCoords[stationNumLength];
+    for (i = 0; i < stationNumLength; i++){
+        destinationCoords[i].x = stationCoords[stationNums[i]][0];
+        destinationCoords[i].y = stationCoords[stationNums[i]][1];
+    }
+    struct Coords * destinationCoordsListPtr = destinationCoords;
+    return destinationCoordsListPtr;
+}
+*/
 
+int algorithm(){
+
+}
+
+
+/* Function that finds the closest station using the xy coords of stations, the list of stations to visit
+ * Returns a struct with the coords of the closest station
+*/
+struct Coords findNearestStation(int stationsXY, int destinationStations, struct Coords currentLocation){
+    int numDestinations = sizeof(destinationStations)/sizeof(destinationStations[0]); 
+    int i, j;
+    int leastSteps = 999;
+    int totalSteps;
+    int closestStation = 0;
+    for(i = 0; i < numDestinations; i++){
+        while(matrix[currentLocation.y][currentLocation.x] < 1){
+            totalSteps = algorithm(currentLocation, targetLocation);
+        }
+        if(totalSteps < leastSteps){ 
+            leastSteps = totalSteps;
+            closestStation = destinationStations[i];
+        }
+    }
+    struct Coords target;
+    target.x = stationsXY[destinationStations[i]][0];
+    target.y = stationsXY[destinationStations[i]][1];
+    return target;
+
+}
 
 int main(){
-    short dimensions = 9;
 
     struct Coords target;
     struct Coords currentLocation;
-    short dimensions = 9;
 
      //First element empty to match index
      //x, y coords per station
     int stations[13][2] = {{0,0},
 {2,8}, {4,8}, {6,8}, {8,6}, {8,4}, {8,2}, {6,0}, {4,0}, {2,0}, {0,2}, {0,4}, {0,6}};
 
-    //IMPORTANT THAT LAST ELEMENT IN DESTINATIONSTATIONS IS A 0
-    int destinationStations = {10,11,1,0};
+    int destinationStations = {10,11,1};
     int *destinationStationsPtr = destinationStations;
     int startX, startY, finishY, finishX, startStation, finishStation;
 
@@ -220,18 +258,15 @@ int main(){
     //give startstation value i = 1
     matrix[currentLocation.y][currentLocation.x] = 1;
     int i = 1;
+    //struct Coords * destinationCoords = stationToCoords(destinationStations, stations);
+    target = findNearestStation(stations, destinationStations, currentLocation);
 
-
-    target = findNearestStation(destinationStationsPtr, );
+    //target = findNearestDestination(destinationCoords);
     while(matrix[currentLocation.y][currentLocation.x] < 1){
-        checkfori(dimensions, mazePtr, i);
-        printMaze(dimensions, mazePtr);
-        printf("\n");
-        i++;
-        
+        steps = algorithm;
     }
     int steps = 0;
-    traceBack(dimensions, mazePtr, startY, startX, directionPtr, currentDirection, steps);
+    traceBack(dimensions, startY, startX, directionPtr, currentDirection, steps);
     
     return 0;
 }
