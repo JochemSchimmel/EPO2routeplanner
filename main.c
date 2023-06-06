@@ -114,26 +114,49 @@ void refreshMatrix(){
     }
 }
 
+int windDirectionToAngle(char windDirection){
+    int angle;
+    switch (windDirection)
+    {
+    case 'n':
+        angle = 0;
+        break;
+    case 'e':
+        angle = 90;
+        break;
+    case 's':
+        angle = 180;
+        break;
+    case 'w':
+        angle = 270;
+        break;
+    }
+    return angle;
+}
 
-/*
-char determineRelativeDirection(int nextDirectionAngle, char currentDirection, char directionList[99]){
-    int angle = nextDirectionAngle - currentDirection;
-    char turn;
+
+char determineNextCommand(char nextDirection, char currentDirection){  
+    char nextCommand;
+    int nextAngle = windDirectionToAngle(nextDirection);
+    int currAngle = windDirectionToAngle(currentDirection);
+
+    int angle = nextAngle - currAngle;
     if(angle < -90) angle = angle + 360;
-    if(angle == 270) angle -= 90;
     switch(angle){
         case 0:
-        turn = 0x4;
-        case -90:
-        turn = 0x2;
+        nextCommand = 0x4;
+
         case 90:
-        turn = 0x1;
+        nextCommand = 0x1;
+
         case 180:
-        turn = 0x8;
+        nextCommand = 0x8;
+
+        case 270:
+        nextCommand = 0x2;
     }
-    return turn;
+    return nextCommand;
 }
-*/
 
 
 /*
@@ -141,39 +164,52 @@ char determineRelativeDirection(int nextDirectionAngle, char currentDirection, c
     it visits the neighbour with value i -1, where the function is called recursively
     stops when the x y coords are the destination
 */
-void traceBack(int y, int x, char directionList[99], int currentDirection){
-    int currentCellValue = matrix[y][x];
-    char * directionListPtr = directionList;
-    int nextDirection;
-    if( currentCellValue == 1) return;
+void traceBack(struct Coords location, struct Commands currentCommand, char currentDirection){
+    int currentCellValue = matrix[location.y][location.x];
+    char nextDirection;
+    int y = location.y;
+    int x = location.x;
+    struct Coords nextLocation;
+    
+    if(currentCellValue == 1) return;
     if(y + 1 < dimensions){
-        if(matrix[y+1][x] == currentCellValue - 1){
-                nextDirection = determineRelativeDirection(180, currentDirection, directionListPtr);
-                traceBack(y + 1,x, directionListPtr, nextDirection);
-                return;
+        if(matrix[y+1][x] == currentCellValue - 1){              
+            nextLocation.x = x;
+            nextLocation.y = y + 1;
+            nextDirection = 's';
+            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            return;
         }
     }
     if(x + 1 < dimensions){
-        if(matrix[y][x + 1] == currentCellValue - 1){
-            nextDirection = determineRelativeDirection(90, currentDirection,directionListPtr);
-            currentDirection = nextDirection;
-            traceBack(y,x + 1, directionListPtr, nextDirection);
+        if(matrix[y][x + 1] == currentCellValue - 1){            
+            nextLocation.x = x + 1;
+            nextLocation.y = y;
+            nextDirection = 'e';
+            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, *(currentCommand.next), nextDirection);
             return;
         }
     }
     if(y - 1 > -1){
-        if(matrix[y-1][x] == currentCellValue - 1){
-                nextDirection = determineRelativeDirection(0, currentDirection);
-                currentDirection = nextDirection;
-                traceBack(y - 1,x, directionListPtr, nextDirection);
-                return; 
+        if(matrix[y-1][x] == currentCellValue - 1){                       
+            nextLocation.x = x;
+            nextLocation.y = y - 1;
+            nextDirection = 'n';
+            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            return; 
         }
     }
 
     if(x - 1 > -1){
         if(matrix[y][x - 1] == currentCellValue - 1){
-            nextDirection = determineRelativeDirection(270, currentDirection);
-            traceBack(y,x - 1, directionListPtr, nextDirection);
+            nextLocation.x = x - 1;
+            nextLocation.y = y;
+            nextDirection = 'w';
+            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, *(currentCommand.next), nextDirection);
             return;
         }
     }
@@ -194,13 +230,13 @@ struct Coords findNearestStation(struct Coords destinations[]){
  of a list of all coords of the stations, so 
  * a list of coordinate structs can be made
 */
-struct Coords * stationToCoords(int stations, int stationCoords, int numberOfDestinations){
+struct Coords * stationToCoords(int stationCoords[13][2], int numberOfDestinations, int destinationStations[numberOfDestinations]){
     int i = 0;
     struct Coords * destinationCoordList[numberOfDestinations];
 
     for (i = 0; i < numberOfDestinations; i++){
-        destinationCoordList[i].x = stationCoords[numberOfDestinations[i]][0];
-        destinationCoordList[i].y = stationCoords[numberOfDestinations[i]][1];
+        destinationCoordList[i]->x = stationCoords[destinationStations[i]][0];
+        destinationCoordList[i]->y = stationCoords[destinationStations[i]][1];
     }
     return &destinationCoordList[0];
 }
@@ -246,15 +282,16 @@ struct Coords findNearestStation(int stationsXY, int * destinationStations, stru
 }
 */
 
-struct Coords findNearestDestination(struct Coords * destinationPtr, struct Coords currentLocation, int numberOfDestinations){
+struct Coords findNearestDestination(int numberOfDestinations, struct Coords * destinationPtr[numberOfDestinations], struct Coords currentLocation){
     struct Coords nearestDestination;
     int i, steps;
     int leastSteps = 999;
     for(i = 0; i < numberOfDestinations; i++){
-        steps = algorithm(currentLocation, destinationPtr[i]);
+        steps = algorithm(currentLocation, *destinationPtr[i]);
         if(steps < leastSteps) {
             leastSteps = steps;
-            nearestDestination = destinationPtr[i];
+            nearestDestination.x  = destinationPtr[i]->x;
+            nearestDestination.y  = destinationPtr[i]->y;
         }
     }
 
@@ -266,6 +303,10 @@ int main(){
     struct Coords target;
     struct Coords currentLocation;
     struct Coords *destinationPtr;
+    struct Commands commandChain;
+    struct Commands *commandChainHead;
+    commandChainHead = &commandChain;
+    
     int startX, startY, finishY, finishX, startStation, finishStation, steps;
 
      //First element empty to match index
@@ -273,10 +314,12 @@ int main(){
     int stations[13][2] = {{0,0},
     {2,8}, {4,8}, {6,8}, {8,6}, {8,4}, {8,2}, {6,0}, {4,0}, {2,0}, {0,2}, {0,4}, {0,6}};
     int destinationStations[] = {10,11,1};
+
     int numDestinations = sizeof(destinationStations)/sizeof(destinationStations[0]); 
     int * stationsPtr = stations;
     int * destinationStationsPtr = destinationStations;
-    destinationPtr = stationToCoords(destinationStationsPtr, stationsPtr, numDestinations);
+    
+    destinationPtr = stationToCoords(destinationStationsPtr, numDestinations, stationsPtr);
     
 
     //initialises the startstation
@@ -285,20 +328,18 @@ int main(){
     currentLocation.x = stations[startStation][0];
     currentLocation.x = stations[startStation][1];
 
+
     
-    
-    
-    char directionList[99];
-    char *directionPtr = directionList;
+
     char currentDirection = startDirection;
 
 
     //struct Coords * destinationCoords = stationToCoords(destinationStations, stations);
     //target = findNearestStation(stations, destinationStations, currentLocation);
-    target = findNearestDestination(destinationPtr, currentLocation, numDestinations);
+    target = findNearestDestination(numDestinations, destinationPtr, currentLocation);
     //target = findNearestDestination(destinationCoords);
     steps = algorithm(currentLocation, target);
-    traceBack(startY, startX, directionPtr, currentDirection);
+    traceBack(currentLocation, commandChain, currentDirection);
     
     return 0;
 }

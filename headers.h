@@ -6,6 +6,11 @@ struct Coords{
     int y;
 };
 
+struct Commands{
+    char command;
+    struct Commands * next;
+};
+
 //                           9      8      7
 int matrix[9][9] =  {{0,  0, 0,  0, 0,  0, 0,  0,  0},
                     { 0, -1, 0, -1, 0, -1, 0, -1,  0},
