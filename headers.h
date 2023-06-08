@@ -1,15 +1,21 @@
 #ifndef HEADER_FILE
 #define HEADER_FILE
 
+struct Commands{
+    char command;
+    struct Commands * next;
+};
+
 struct Coords{
     int x;
     int y;
 };
 
-struct Commands{
-    char command;
-    struct Commands * next;
+struct Destinations{
+    struct Coords coords;
+    struct Destinations * next;
 };
+
 
 //                           9      8      7
 int matrix[9][9] =  {{0,  0, 0,  0, 0,  0, 0,  0,  0},

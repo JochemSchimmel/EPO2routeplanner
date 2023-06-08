@@ -230,15 +230,21 @@ struct Coords findNearestStation(struct Coords destinations[]){
  of a list of all coords of the stations, so 
  * a list of coordinate structs can be made
 */
-struct Coords * stationToCoords(int stationCoords[13][2], int numberOfDestinations, int destinationStations[numberOfDestinations]){
+struct Destinations * stationToCoords(int stationCoords[13][2], int numberOfDestinations, int destinationStations[numberOfDestinations]){
     int i = 0;
-    struct Coords * destinationCoordList[numberOfDestinations];
+    struct Destinations destinationChain;
+    struct Destinations *destinationChainHead;
+    destinationChainHead = &destinationChain;
 
-    for (i = 0; i < numberOfDestinations; i++){
-        destinationCoordList[i]->x = stationCoords[destinationStations[i]][0];
-        destinationCoordList[i]->y = stationCoords[destinationStations[i]][1];
+    for (i = 0; i < numberOfDestinations - 1; i++){ //Loops to numberofDestinations - 1 so the pointer to next can be set to NULL
+        destinationChain.coords.x = stationCoords[destinationStations[i]][0];
+        destinationChain.coords.x = stationCoords[destinationStations[i]][1];
+        destinationChain = *(destinationChain.next);
     }
-    return &destinationCoordList[0];
+    destinationChain.coords.x = stationCoords[destinationStations[i]][0];
+    destinationChain.coords.x = stationCoords[destinationStations[i]][1];
+    destinationChain.next = NULL;
+    return destinationChainHead;
 }
 
 
@@ -251,51 +257,29 @@ int algorithm(struct Coords startLocation, struct Coords targetLocation){
         checkfori(i);
     }
     steps = i;
-
+    traceBack(targetLocation, );
     return steps;
 }
 
-
-/* Function that finds the closest station using the xy coords of stations, the list of stations to visit
- * Returns a struct with the coords of the closest station
-
-struct Coords findNearestStation(int stationsXY, int * destinationStations, struct Coords currentLocation){
-    
-    int i, j;
-    int leastSteps = 999;
-    int totalSteps;
-    int closestStation = 0;
-    for(i = 0; i < numDestinations; i++){
-        while(matrix[currentLocation.y][currentLocation.x] < 1){
-            totalSteps = algorithm(currentLocation, targetLocation);
-        }
-        if(totalSteps < leastSteps){ 
-            leastSteps = totalSteps;
-            closestStation = destinationStations[i];
-        }
-    }
-    struct Coords target;
-    target.x = stationsXY[destinationStations[i]][0];
-    target.y = stationsXY[destinationStations[i]][1];
-    return target;
-
-}
+/*
+When this function is called, the first item in the 'destination' linked list becomes the closest station
 */
-
-struct Coords findNearestDestination(int numberOfDestinations, struct Coords * destinationPtr[numberOfDestinations], struct Coords currentLocation){
-    struct Coords nearestDestination;
+findNearestDestination(int numberOfDestinations, struct Destinations *destinationChainHead, struct Coords currentLocation){
+    struct Destinations *closestDestination;
+    struct Destinations currentDestination;
+    struct Destinations *prevDestination;
+    currentDestination = *destinationChainHead;
     int i, steps;
     int leastSteps = 999;
-    for(i = 0; i < numberOfDestinations; i++){
-        steps = algorithm(currentLocation, *destinationPtr[i]);
+    while(currentDestination.next)
+        steps = algorithm(currentLocation, currentDestination.coords);
         if(steps < leastSteps) {
             leastSteps = steps;
-            nearestDestination.x  = destinationPtr[i]->x;
-            nearestDestination.y  = destinationPtr[i]->y;
+            destinationChainHead
         }
+        prevDestination = &currentDestination;
+        currentDestination = currentDestination.next
     }
-
-    return nearestDestination;
 }
 
 int main(){
@@ -303,6 +287,10 @@ int main(){
     struct Coords target;
     struct Coords currentLocation;
     struct Coords *destinationPtr;
+
+    struct Destinations *destinationChainHead;
+
+
     struct Commands commandChain;
     struct Commands *commandChainHead;
     commandChainHead = &commandChain;
@@ -319,7 +307,7 @@ int main(){
     int * stationsPtr = stations;
     int * destinationStationsPtr = destinationStations;
     
-    destinationPtr = stationToCoords(destinationStationsPtr, numDestinations, stationsPtr);
+    destinationChainHead = stationToCoords(destinationStationsPtr, numDestinations, stationsPtr);
     
 
     //initialises the startstation
@@ -334,9 +322,8 @@ int main(){
     char currentDirection = startDirection;
 
 
-    //struct Coords * destinationCoords = stationToCoords(destinationStations, stations);
-    //target = findNearestStation(stations, destinationStations, currentLocation);
-    target = findNearestDestination(numDestinations, destinationPtr, currentLocation);
+
+    findNearestDestination(numDestinations, destinationChainHead, currentLocation);
     //target = findNearestDestination(destinationCoords);
     steps = algorithm(currentLocation, target);
     traceBack(currentLocation, commandChain, currentDirection);
