@@ -164,21 +164,26 @@ char determineNextCommand(char nextDirection, char currentDirection){
     it visits the neighbour with value i -1, where the function is called recursively
     stops when the x y coords are the destination
 */
-void traceBack(struct Coords location, struct Commands currentCommand, char currentDirection){
+void traceBack(struct Coords location, struct Commands *currentCommandPtr, struct Destinations crossingList, char currentDirection){
     int currentCellValue = matrix[location.y][location.x];
     char nextDirection;
     int y = location.y;
     int x = location.x;
     struct Coords nextLocation;
+    crossingList.coords = location;
+
     
-    if(currentCellValue == 1) return;
+    if(currentCellValue == 1) {
+        currentCommandPtr = NULL;
+        return;
+    }
     if(y + 1 < dimensions){
         if(matrix[y+1][x] == currentCellValue - 1){              
             nextLocation.x = x;
             nextLocation.y = y + 1;
             nextDirection = 's';
-            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
-            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            currentCommandPtr->command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, currentCommandPtr->next, *(crossingList.next), nextDirection);
             return;
         }
     }
@@ -187,8 +192,8 @@ void traceBack(struct Coords location, struct Commands currentCommand, char curr
             nextLocation.x = x + 1;
             nextLocation.y = y;
             nextDirection = 'e';
-            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
-            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            currentCommandPtr->command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, currentCommandPtr->next, *(crossingList.next), nextDirection);
             return;
         }
     }
@@ -197,8 +202,8 @@ void traceBack(struct Coords location, struct Commands currentCommand, char curr
             nextLocation.x = x;
             nextLocation.y = y - 1;
             nextDirection = 'n';
-            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
-            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            currentCommandPtr->command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, currentCommandPtr->next, *(crossingList.next), nextDirection);
             return; 
         }
     }
@@ -208,21 +213,12 @@ void traceBack(struct Coords location, struct Commands currentCommand, char curr
             nextLocation.x = x - 1;
             nextLocation.y = y;
             nextDirection = 'w';
-            currentCommand.command = determineNextCommand(nextDirection, currentDirection);
-            traceBack(nextLocation, *(currentCommand.next), nextDirection);
+            currentCommandPtr->command = determineNextCommand(nextDirection, currentDirection);
+            traceBack(nextLocation, currentCommandPtr->next, *(crossingList.next), nextDirection);
             return;
         }
     }
 }
-/*
-struct Coords findNearestStation(struct Coords destinations[]){
-    struct Coords target;
-    target.x = 5;
-    target.y = 3;
-    return target;
-}
-*/
-
 
 
 /*
@@ -248,8 +244,8 @@ struct Destinations * stationToCoords(int stationCoords[13][2], int numberOfDest
 }
 
 
-int algorithm(struct Coords startLocation, struct Coords targetLocation){
-    matrix[startLocation.y][startLocation.x] = 1;
+int algorithm(struct Coords startLocation, struct Coords targetLocation, struct Commands *commandChain, struct Destinations crossingList, char currentDirection){
+    matrix[targetLocation.y][targetLocation.x] = 1;
     int i = 0;
     int steps = 0;
     while(matrix[targetLocation.y][targetLocation.x] < 1){
@@ -257,28 +253,35 @@ int algorithm(struct Coords startLocation, struct Coords targetLocation){
         checkfori(i);
     }
     steps = i;
-    traceBack(targetLocation, );
+    traceBack(startLocation, commandChain, crossingList , currentDirection);
+    refreshMatrix();
     return steps;
 }
 
 /*
 When this function is called, the first item in the 'destination' linked list becomes the closest station
 */
-findNearestDestination(int numberOfDestinations, struct Destinations *destinationChainHead, struct Coords currentLocation){
+findNearestDestination(int numberOfDestinations, struct Destinations *destinationChainHead, struct Coords currentLocation, char startDirection){
     struct Destinations *closestDestination;
     struct Destinations currentDestination;
     struct Destinations *prevDestination;
+    struct Destinations *temp_1, *temp_2;
+    struct Commands * trash; //We only need this pointer to make the algorithm function work
+    struct Destinations trash2; //Again, the retrun value of this pointer by the algorithm func is not used in this function
     currentDestination = *destinationChainHead;
     int i, steps;
     int leastSteps = 999;
-    while(currentDestination.next)
-        steps = algorithm(currentLocation, currentDestination.coords);
+    while(currentDestination.next){
+        steps = algorithm(currentLocation, currentDestination.coords, trash, trash2, startDirection);
         if(steps < leastSteps) {
             leastSteps = steps;
-            destinationChainHead
+            temp_1 = destinationChainHead;
+            destinationChainHead = &currentDestination;
+            temp_2 = &currentDestination.next;
+            prevDestination->next = &temp_2;
         }
         prevDestination = &currentDestination;
-        currentDestination = currentDestination.next
+        currentDestination = *(currentDestination.next);
     }
 }
 
@@ -289,11 +292,10 @@ int main(){
     struct Coords *destinationPtr;
 
     struct Destinations *destinationChainHead;
-
-
-    struct Commands commandChain;
     struct Commands *commandChainHead;
-    commandChainHead = &commandChain;
+    struct Destinations *halfCrossingListHead;
+    struct Destinations halfCrossingList;
+    halfCrossingListHead = &halfCrossingList;
     
     int startX, startY, finishY, finishX, startStation, finishStation, steps;
 
@@ -323,10 +325,9 @@ int main(){
 
 
 
-    findNearestDestination(numDestinations, destinationChainHead, currentLocation);
+    findNearestDestination(numDestinations, destinationChainHead, currentLocation, currentDirection);
     //target = findNearestDestination(destinationCoords);
-    steps = algorithm(currentLocation, target);
-    traceBack(currentLocation, commandChain, currentDirection);
+    steps = algorithm(currentLocation, target, commandChainHead, halfCrossingList, startDirection);
     
     return 0;
 }
