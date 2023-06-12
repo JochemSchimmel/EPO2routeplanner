@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <string.h>
 
-#define COMPORT "COM3"
+#define COMPORT "COM5"
 #define BAUDRATE CBR_9600
 
 //--------------------------------------------------------------
@@ -30,6 +30,7 @@ void initSio(HANDLE hSerial){
     dcbSerialParams.Parity   = NOPARITY;
 
     if(!SetCommState(hSerial, &dcbSerialParams)){
+        //error setting serial port state
         printf("error setting state \n");
     }
 
@@ -76,7 +77,6 @@ int writeByte(HANDLE hSerial, char *buffWrite){
     {
         printf("error writing byte to output buffer \n");
     }
-    printf("Byte written to write buffer is: %c \n", buffWrite[0]);
 
     return(0);
 }
@@ -116,15 +116,30 @@ int main()
     initSio(hSerial);
 
     while ( 1 ) {
-        char * byteBuffer;
+        char tmp[8] = "";
+
+        while(1){
+            char c = readByte(hSerial, byteBuffer);
+            if (c=='1'){
+                tmp[0] = '1';
+                for (int i = 1; i < 8; i++){
+                    char bit = readByte(hSerial, byteBuffer);     
+
+                    strncat(tmp, &bit, 1);
+                }
+                printf("\nByte: %s\n", tmp);
+                break;
+            }
+        }
+
+        char * byteBufferr;
         char byte[9] = "10000010";
     
         for (int i = 0; i < 8; i++) {
-            byteBuffer = &byte[i];
-            writeByte(hSerial, byteBuffer);
+            byteBufferr = &byte[i];
+            writeByte(hSerial, byteBufferr);
         }
-        
-        break;
+        printf("Sended: %s\n",byte);
     }
 
     printf("ZIGBEE IO DONE!\n");
