@@ -60,7 +60,7 @@ int readByte(HANDLE hSerial, char *buffRead) {
     {
         printf("error reading byte from input buffer \n");
     }
-    // printf("Byte read from read buffer is: %c \n", buffRead[0]);
+    //printf("Byte read from read buffer is: %c \n", buffRead[0]);
     return(buffRead[0]);
 }
 
@@ -114,32 +114,31 @@ int main()
     //----------------------------------------------------------
 
     initSio(hSerial);
-
+    int k = 0;
     while ( 1 ) {
+        k++;
         char tmp[8] = "";
 
         while(1){
             char c = readByte(hSerial, byteBuffer);
-            if (c=='1'){
-                tmp[0] = '1';
+            if (c=='1' || c=='0'){
+                tmp[0] = c;
                 for (int i = 1; i < 8; i++){
-                    char bit = readByte(hSerial, byteBuffer);     
+                    char bit = readByte(hSerial, byteBuffer);
 
                     strncat(tmp, &bit, 1);
                 }
-                printf("\nByte: %s\n", tmp);
+                printf("\nInformation %d", k);
+                printf("\nBit: %c", tmp[0]);
                 break;
             }
         }
 
-        char * byteBufferr;
-        char byte[9] = "10000010";
-    
-        for (int i = 0; i < 8; i++) {
-            byteBufferr = &byte[i];
-            writeByte(hSerial, byteBufferr);
-        }
-        printf("Sended: %s\n",byte);
+        char byteBufferr = 0x84;
+
+        writeByte(hSerial, &byteBufferr);
+
+        printf("\nSend: %c\n",&byteBufferr);
     }
 
     printf("ZIGBEE IO DONE!\n");
