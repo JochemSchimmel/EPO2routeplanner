@@ -1,12 +1,10 @@
 #include <stdio.h>
-
-int foo(){
-    printf("y");
-    return 6;
-}
-
+#include "communication.h"
 
 int main(){
-    foo();
+    int a;
+    char commands[] = {0x84, 0x84, 0x84};
+    int numCommands = sizeof(commands)/sizeof(char); 
+    a = runCar(numCommands, commands);
     return 0;
 }
